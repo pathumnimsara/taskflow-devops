@@ -1,0 +1,39 @@
+
+services:
+  mongodb:
+    image: mongo:8
+    container_name: taskflow-mongodb
+    volumes:
+      - taskflow-mongo-data:/data/db
+    networks:
+      - taskflow-network
+
+  backend:
+    build: ./backend
+    container_name: taskflow-api
+    environment:
+      MONGO_URL: mongodb://mongodb:27017
+      MONGO_DB: taskflow
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+    networks:
+      - taskflow-network
+
+  frontend:
+    build: ./frontend
+    container_name: taskflow-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - taskflow-network
+
+networks:
+  taskflow-network:
+    driver: bridge
+
+volumes:
+  taskflow-mongo-data:
